@@ -4,8 +4,31 @@ require 'active_support/inflector'
 # of this project. It was only a warm up.
 
 class SQLObject
+
+  # tname = self.table_name
+  # arr = DBConnection.execute2(<<-SQL)
+  #   SELECT
+  #     *
+  #   FROM
+  #     "#{tname}"
+  #   LIMIT
+  #     0
+  # SQL
+
   def self.columns
     # ...
+  
+  @columns ||= DBConnection.execute2(<<-SQL)
+    SELECT
+      *
+    FROM
+      "#{table_name}"
+    LIMIT
+      0
+  SQL
+  
+  @columns.flatten.map {|str| str.to_sym}
+  
   end
 
   def self.finalize!
@@ -13,11 +36,19 @@ class SQLObject
 
   def self.table_name=(table_name)
     # ...
+    # class_name_str = "#{table_name}"
+    # @table_name = class_name_str.downcase + "s"
+
+    @table_name = table_name
   end
 
   def self.table_name
     # ...
+    class_name_str = "#{self}"
+    @table_name = class_name_str.downcase + "s"
   end
+
+  
 
   def self.all
     # ...
